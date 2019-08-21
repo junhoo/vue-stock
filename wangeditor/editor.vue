@@ -135,4 +135,47 @@ export default {
     background: #fff !important;
   }
 }
+
+.w-e-text::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/*正常情况下滑块的样式*/
+.w-e-text::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, .05);
+  border-radius: 5px;
+  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+}
+
+/*鼠标悬浮在该类指向的控件上时滑块的样式*/
+.w-e-text:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(125, 125, 125, 0.1);
+  border-radius: 5px;
+  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+}
+
+/*鼠标悬浮在滑块上时滑块的样式*/
+.w-e-text::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(125, 125, 125, 0.2);
+  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+}
+
+/*正常时候的主干部分*/
+.w-e-text::-webkit-scrollbar-track {
+  border-radius: 5px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+  background-color: white;
+}
+
+/*鼠标悬浮在滚动条上的主干部分*/
+.w-e-text::-webkit-scrollbar-track:hover {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+  background-color: rgba(88, 88, 88, 0.01);
+}
 </style>
