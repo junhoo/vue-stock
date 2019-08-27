@@ -3,6 +3,7 @@
     <div
       ref="editorElem"
       style="text-align:left"
+      class="wrapper"
     ></div>
   </div>
 </template>
@@ -18,18 +19,27 @@ export default {
     },
     updateData: {
       type: Function
+    },
+    useMenu: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
+
   data () {
     return {
       editorContent: ''
     }
   },
+
   watch: {
     content () {
       this.editor.txt.html(this.content)
     }
   },
+
   mounted () {
     this.editor = new WEditer(this.$refs.editorElem)
     this.editor.customConfig.menus = [ // 菜单配置
@@ -43,14 +53,10 @@ export default {
       'foreColor', // 文字颜色
       'backColor', // 背景颜色
       'link', // 插入链接
-      // 'list', // 列表
       'justify', // 对齐方式
       'quote', // 引用
-      // 'emoticon', // 表情
-      'image', // 插入图片
-      // 'table', // 表格
-      'undo' // 撤销
-      // 'redo' // 重复
+      'undo', // 撤销
+      ...this.useMenu
     ]
     this.editor.customConfig.onchange = (html) => {
       this.editorContent = html
@@ -58,21 +64,96 @@ export default {
     }
     this.uploadImgConfig()
     this.uploadImgHooks()
+    this.pasteStyleHandle()
     this.editor.create()
+
     if (!this.content) {
       this.editor.txt.html('')
     }
   },
+
   methods: {
+    insertText (val) {
+      this.editor.$textElem.focus()
+      var sel = document.getSelection(); //DOM
+      sel = sel ? sel : window.getSelection();
+      var range;
+      if (sel) {
+        // DOM下
+        range = sel.getRangeAt(0);
+        if (range.startContainer) {
+          sel.removeAllRanges(); // 删除Selection中的所有Range
+          range.deleteContents(); // 清除Range中的内容
+          // 获得Range中的第一个html结点
+          var container = range.startContainer;
+          // 获得Range起点的位移
+          var pos = range.startOffset;
+          // 建一个空Range
+          range = document.createRange();
+          // 插入内容
+          var cons = document.createTextNode(val);
+
+          if (container.nodeType == 3) {
+            // 如是一个TextNode
+            container.insertData(pos, cons.nodeValue);
+            // 改变光标位置
+            range.setEnd(container, pos + cons.nodeValue.length);
+            range.setStart(container, pos + cons.nodeValue.length);
+          } else {
+            // 如果是一个HTML Node
+            var afternode = container.childNodes[pos];
+            container.insertBefore(cons, afternode);
+
+            range.setEnd(cons, cons.nodeValue.length);
+            range.setStart(cons, cons.nodeValue.length);
+          }
+          sel.addRange(range);
+        }
+      } else {
+        //IE
+        sel = editor.document.selection;
+        range = sel.createRange();
+        var cnode = range.parentElement();
+        while (cnode.tagName.toLowerCase() != 'body') {
+          cnode = cnode.parentNode;
+        }
+        if (cnode.id && cnode.id == 'rich_txt_editor') {
+          range.pasteHTML(val);
+        }
+      }
+      this.editor.$textElem.focus()
+    },
+
+    pasteStyleHandle () {
+      // 关闭粘贴样式的过滤
+      this.editor.customConfig.pasteFilterStyle = false
+      // 忽略粘贴内容中的图片
+      this.editor.customConfig.pasteIgnoreImg = false
+      // 自定义处理粘贴的文本内容
+      this.editor.customConfig.pasteTextHandle = (content) => {
+        var str = ''
+        if (content === '' && !content) { return str }
+        str = content.replace(/<!--[\w\W\r\n]*?-->/gmi, '');
+        str = str.replace(/<(w.*).+?>/igm, '');
+        str = str.replace(/<html[\s\S]*?>/ig, '')
+        str = str.replace(/<link[\s\S]*?>/ig, '')
+        str = str.replace(/<body[\s\S]*?>/ig, '')
+        str = str.replace(/<\/body>/ig, '')
+        str = str.replace(/<xml>[\s\S]*?<\/xml>/ig, '')
+        str = str.replace(/<head>[\s\S]*?<\/head>/ig, '')
+        str = str.replace(/<style>[\s\S]*?<\/style>/ig, '')
+        return str
+      }
+    },
+
     uploadImgConfig () {
-      // this.editor.txt.clear() // 清空内容
       this.editor.customConfig.zIndex = 100
       this.editor.customConfig.uploadImgTimeout = 3500
+      this.editor.customConfig.uploadImgMaxSize = 2 * 1024 * 1024
+      this.editor.customConfig.uploadImgMaxLength = 5
       this.editor.customConfig.uploadFileName = 'file'
       this.editor.customConfig.uploadImgServer = '/api/self/uploadImage'
       this.editor.customConfig.uploadImgParams = { type: 'facebook' }
-      this.editor.customConfig.uploadImgMaxSize = 2 * 1024 * 1024
-      this.editor.customConfig.uploadImgMaxLength = 5
     },
 
     uploadImgHooks () {
@@ -131,8 +212,14 @@ export default {
 
 <style lang="less">
 #wangeditor {
+  width: 100%;
+  border-radius: 4px;
+  .wrapper {
+    border-radius: 4px;
+  }
   .w-e-toolbar {
     background: #fff !important;
+    flex-wrap: wrap;
   }
 }
 
@@ -143,25 +230,25 @@ export default {
 
 /*正常情况下滑块的样式*/
 .w-e-text::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, .05);
+  background-color: rgba(0, 0, 0, 0.05);
   border-radius: 5px;
-  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
-  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 /*鼠标悬浮在该类指向的控件上时滑块的样式*/
 .w-e-text:hover::-webkit-scrollbar-thumb {
   background-color: rgba(125, 125, 125, 0.1);
   border-radius: 5px;
-  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
-  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 /*鼠标悬浮在滑块上时滑块的样式*/
 .w-e-text::-webkit-scrollbar-thumb:hover {
   background-color: rgba(125, 125, 125, 0.2);
-  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
-  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .1);
+  -webkit-box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 /*正常时候的主干部分*/
