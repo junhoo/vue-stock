@@ -7,10 +7,8 @@
 ```
 <template>
   <div id="app">
-    <comp-editor
-      :content="content"
-      @edit-val="updateData"
-    ></comp-editor>
+    <comp-editor @edit-val="updateData"></comp-editor>
+    <button @click="getContent">获取文本</button>
   </div>
 </template>
 
@@ -23,6 +21,9 @@ export default {
     }
   },
   methods: {
+    getContent () {
+      alert(this.content)
+    }
     updateData (val) {
       this.content = val;
     }

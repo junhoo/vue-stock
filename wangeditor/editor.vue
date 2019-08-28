@@ -13,10 +13,6 @@ import WEditer from 'wangeditor'
 export default {
   name: 'editorEle',
   props: {
-    content: {
-      type: String,
-      default: ''
-    },
     updateData: {
       type: Function
     },
@@ -31,12 +27,6 @@ export default {
   data () {
     return {
       editorContent: ''
-    }
-  },
-
-  watch: {
-    content () {
-      this.editor.txt.html(this.content)
     }
   },
 
@@ -66,10 +56,6 @@ export default {
     this.uploadImgHooks()
     this.pasteStyleHandle()
     this.editor.create()
-
-    if (!this.content) {
-      this.editor.txt.html('')
-    }
   },
 
   methods: {
