@@ -7,7 +7,7 @@
 ```
 <template>
   <div id="app">
-    <comp-editor @edit-val="updateData"></comp-editor>
+    <comp-editor ref="editor" @edit-val="updateData"></comp-editor>
     <button @click="getContent">获取文本</button>
   </div>
 </template>
@@ -23,7 +23,11 @@ export default {
   methods: {
     getContent () {
       alert(this.content)
-    }
+    },
+    addText () {
+      const text = '添加的一段话'
+      this.$refs.editor.coverText(text)
+    },
     updateData (val) {
       this.content = val;
     }

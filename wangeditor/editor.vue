@@ -10,6 +10,17 @@
 
 <script>
 import WEditer from 'wangeditor'
+const menus = [
+  'head', 'bold', 'fontSize', // 标题 粗体 字号
+  'fontName', 'italic', 'underline', // 字体 斜体 下划线
+  'strikeThrough', 'foreColor', 'backColor', // 删除线 文字颜色 背景颜色
+  'link', 'justify', 'quote', 'undo' // 插入链接 对齐方式 引用 撤销
+]
+const colors = [
+  '#ffffff', '#eeece0', '#bbbbbb', '#000000',
+  '#1c487f', '#4d80bf', '#EA0000', '#c24f4a',
+  '#8baa4a', '#7b5ba1', '#46acc8', '#f9963b'
+]
 export default {
   name: 'editorEle',
   props: {
@@ -26,31 +37,16 @@ export default {
 
   data () {
     return {
-      editorContent: ''
+      editor: ''
     }
   },
 
   mounted () {
     this.editor = new WEditer(this.$refs.editorElem)
-    this.editor.customConfig.menus = [ // 菜单配置
-      'head', // 标题
-      'bold', // 粗体
-      'fontSize', // 字号
-      'fontName', // 字体
-      'italic', // 斜体
-      'underline', // 下划线
-      'strikeThrough', // 删除线
-      'foreColor', // 文字颜色
-      'backColor', // 背景颜色
-      'link', // 插入链接
-      'justify', // 对齐方式
-      'quote', // 引用
-      'undo', // 撤销
-      ...this.useMenu
-    ]
+    this.editor.customConfig.menus = [...menus, ...this.useMenu]
+    this.editor.customConfig.colors = colors
     this.editor.customConfig.onchange = (html) => {
-      this.editorContent = html
-      this.$emit('edit-val', this.editorContent)
+      this.$emit('edit-val', html)
     }
     this.uploadImgConfig()
     this.uploadImgHooks()
@@ -107,7 +103,12 @@ export default {
           range.pasteHTML(val);
         }
       }
+      this.editor.change()
       this.editor.$textElem.focus()
+    },
+
+    coverText (val) {
+      this.editor.txt.html(val)
     },
 
     pasteStyleHandle () {
