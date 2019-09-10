@@ -53,3 +53,7 @@ git tag -d v0.1.2
 git push origin :refs/tags/<tagName>
 git push origin :refs/tags/v0.1.2
 ```
+- 获取远程版本
+```
+git fetch origin tag V0.1.2
+```
