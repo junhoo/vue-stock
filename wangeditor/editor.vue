@@ -93,7 +93,7 @@ export default {
         }
       } else {
         //IE
-        sel = editor.document.selection;
+        sel = document.selection;
         range = sel.createRange();
         var cnode = range.parentElement();
         while (cnode.tagName.toLowerCase() != 'body') {
